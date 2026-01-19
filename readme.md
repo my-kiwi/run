@@ -1,5 +1,5 @@
 # Run
-Go as fast/as fa as possible
+...as fast/far as possible
 
 ## Project setup
 after cloning, run
