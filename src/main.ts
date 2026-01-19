@@ -1,37 +1,40 @@
 import * as THREE from 'three';
 import { createRenderer } from './renderer';
+import { loadGround } from './models/ground';
+import { loadTexture } from './utils/texture-loader';
 
 let scene: THREE.Scene;
 let camera: THREE.PerspectiveCamera;
-let cube: THREE.Mesh;
 
 const renderer = createRenderer();
 document.body.appendChild(renderer.domElement);
 
-// Scene setup
+// Scene setup (todo move to separate file?)
 scene = new THREE.Scene();
 scene.background = new THREE.Color(0x222222);
+
+// skydome
+loadTexture('morning-cloud_0_5K.exr').then((texture) => {
+  scene.environment = texture; // set as scene environment for reflections
+  scene.background = texture; // Use the prefiltered HDR cubemap as the scene background (sky)
+});
+
+loadGround().then((ground) => {
+  ground.position.y = 0;
+  scene.add(ground);
+});
 
 // Camera setup
 const width = window.innerWidth;
 const height = window.innerHeight;
 camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-camera.position.z = 3;
+camera.position.y = 5;
+camera.lookAt(0, 5, 6);
 
-// Create cube
-const geometry = new THREE.BoxGeometry(2, 2, 2);
-const material = new THREE.MeshPhongMaterial({
-  color: 0x00ff88,
-  emissive: 0x004422,
-  shininess: 100,
-});
-cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
-
-// Lighting
-const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(5, 5, 5);
-scene.add(light);
+// // Lighting
+// const light = new THREE.DirectionalLight(0xffffff, 1);
+// light.position.set(5, 5, 5);
+// scene.add(light);
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
@@ -39,11 +42,7 @@ scene.add(ambientLight);
 // Animation loop
 const animate = (): void => {
   requestAnimationFrame(animate);
-
-  // Rotate cube
-  cube.rotation.x += 0.005;
-  cube.rotation.y += 0.005;
-
+  camera.rotateY(0.1 / 60);
   renderer.render(scene, camera);
 };
 

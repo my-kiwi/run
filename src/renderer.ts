@@ -9,7 +9,7 @@ export const createRenderer = () => {
 
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 3.0;
+  renderer.toneMappingExposure = 1.0;
   // renderer.shadowMap.enabled = true;
   // renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   return renderer;
