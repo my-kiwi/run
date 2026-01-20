@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { createRenderer } from './renderer';
 import { loadGround } from './models/ground';
 import { loadTexture } from './utils/texture-loader';
+import { loadRunner } from './models/runner';
 
 let scene: THREE.Scene;
 let camera: THREE.PerspectiveCamera;
@@ -24,12 +25,18 @@ loadGround().then((ground) => {
   scene.add(ground);
 });
 
+const runnerAnimationPromise = loadRunner().then(({ runnerScene, runnerAnimationMixer }) => {
+  scene.add(runnerScene);
+  runnerScene.position.set(0, 1, 3);
+  return [runnerScene, runnerAnimationMixer] as const;
+});
+
 // Camera setup
 const width = window.innerWidth;
 const height = window.innerHeight;
 camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-camera.position.y = 5;
-camera.lookAt(0, 5, 6);
+camera.position.y = 3;
+camera.lookAt(0, 3, 6);
 
 // // Lighting
 // const light = new THREE.DirectionalLight(0xffffff, 1);
@@ -39,11 +46,21 @@ camera.lookAt(0, 5, 6);
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
+// load assets in parallel
+const [runnerScene, runnerAnimation] = await runnerAnimationPromise;
+
 // Animation loop
+const clock = new THREE.Clock();
+
 const animate = (): void => {
-  requestAnimationFrame(animate);
-  camera.rotateY(0.1 / 60);
+  runnerAnimation.update(clock.getDelta() * 3);
+  // camera.rotateY(0.5 / 60);
+
+  runnerScene.position.z += 0.05;
+  camera.position.z += 0.05;
+
   renderer.render(scene, camera);
+  requestAnimationFrame(animate);
 };
 
 animate();
