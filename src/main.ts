@@ -3,15 +3,13 @@ import { createRenderer } from './renderer';
 import { loadGround } from './models/ground';
 import { loadTexture } from './utils/texture-loader';
 import { loadRunner } from './models/runner';
-
-let scene: THREE.Scene;
-let camera: THREE.PerspectiveCamera;
+import { JumpHandler } from './input/jump-handler';
 
 const renderer = createRenderer();
 document.body.appendChild(renderer.domElement);
 
 // Scene setup (todo move to separate file?)
-scene = new THREE.Scene();
+const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x222222);
 
 // skydome
@@ -34,7 +32,7 @@ const runnerAnimationPromise = loadRunner().then(({ runnerScene, runnerAnimation
 // Camera setup
 const width = window.innerWidth;
 const height = window.innerHeight;
-camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
 camera.position.y = 3;
 camera.lookAt(0, 3, 6);
 
@@ -49,12 +47,14 @@ scene.add(ambientLight);
 // load assets in parallel
 const [runnerScene, runnerAnimation] = await runnerAnimationPromise;
 
+const jumpHandler = new JumpHandler(runnerScene);
+
 // Animation loop
 const clock = new THREE.Clock();
 
 const animate = (): void => {
   runnerAnimation.update(clock.getDelta() * 3);
-  // camera.rotateY(0.5 / 60);
+  jumpHandler.updateJumpAnimation();
 
   runnerScene.position.z += 0.05;
   camera.position.z += 0.05;
