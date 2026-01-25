@@ -1,14 +1,22 @@
-import js from '@eslint/js';
-import tseslint from 'typescript-eslint';
-import prettierPlugin from 'eslint-plugin-prettier';
-import globals from 'globals';
-import { defineConfig } from 'eslint/config';
+import js from '@eslint/js'
+import tseslint from 'typescript-eslint'
+import prettierPlugin from 'eslint-plugin-prettier'
+import globals from 'globals'
+import { defineConfig } from 'eslint/config'
 
 export default defineConfig([
+  // Ignore files
   {
-		// Note: there should be no other properties in this object
-		ignores: ["dist"],
-	},
+    ignores: ['dist'],
+  },
+
+  // Base JS recommended rules
+  js.configs.recommended,
+
+  // TypeScript recommended rules
+  ...tseslint.configs.recommended,
+
+  // Your project config
   {
     files: ['**/*.{js,ts,mjs,cjs,mts,cts}'],
     languageOptions: {
@@ -24,11 +32,14 @@ export default defineConfig([
     },
     plugins: {
       prettier: prettierPlugin,
+      '@typescript-eslint': tseslint.plugin,
     },
     rules: {
-      ...js.configs.recommended.rules,
-      ...tseslint.configs.recommended.rules,
-      'prettier/prettier': 'error', // ✅ Prettier issues are shown as ESLint errors
+      'prettier/prettier': 'error',
+
+      // Disable base rule in favor of TS version
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': 'error',
     },
   },
-]);
+])
