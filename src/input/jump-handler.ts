@@ -17,6 +17,13 @@ export class JumpHandler {
         }
       }
     });
+    // Touch support for mobile
+    window.addEventListener('touchstart', (event) => {
+      event.preventDefault();
+      if (!this.isJumping) {
+        this.initiateJump();
+      }
+    });
   }
 
   public updateJumpAnimation(): void {
